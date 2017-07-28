@@ -25,7 +25,7 @@ pod 'OrderedPageViewController'
 
 ## The Basics
 
-First you must create a Module and register some providers
+First you must create a OrderedPageViewController and register delegate and dateSource, after that add the controller to your interface
 
 ```swift
 let orderedPageViewController = OrderedPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
