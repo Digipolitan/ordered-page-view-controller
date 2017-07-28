@@ -10,9 +10,4 @@ class OrderedPageViewControllerTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
     }
-
-    func testDescription() {
-        let pageViewController = OrderedPageViewController()
-        XCTAssertEqual(pageViewController.numberOfPages, NSNotFound)
-    }
 }
