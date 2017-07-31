@@ -6,6 +6,7 @@ public protocol OrderedPageViewControllerDataSource: class {
 }
 
 public protocol OrderedPageViewControllerDelegate: class {
+    func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, willScrollToViewControllerAt index: Int)
     func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, didScrollToViewControllerAt index: Int)
 }
 
@@ -173,6 +174,12 @@ extension OrderedPageViewController: UIPageViewControllerDelegate {
 
     public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
         pageViewController.view.isUserInteractionEnabled = false
+        if pendingViewControllers.count > 0 {
+            let index = self.index(of: pendingViewControllers[0])
+            if index >= 0 {
+                self.orderedDelegate?.orderedPageViewController(self, willScrollToViewControllerAt: index)
+            }
+        }
     }
 
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
@@ -209,4 +216,9 @@ extension OrderedPageViewController: UIPageViewControllerDelegate {
         return super.preferredFocusEnvironments
     }
     #endif
+}
+
+public extension OrderedPageViewControllerDelegate {
+    func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, willScrollToViewControllerAt index: Int) { }
+    func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, didScrollToViewControllerAt index: Int) { }
 }
