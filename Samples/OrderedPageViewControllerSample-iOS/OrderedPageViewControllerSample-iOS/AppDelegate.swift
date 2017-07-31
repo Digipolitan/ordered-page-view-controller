@@ -35,6 +35,10 @@ extension AppDelegate: OrderedPageViewControllerDelegate, OrderedPageViewControl
         print("Scroll at \(index)")
     }
 
+    func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, willScrollToViewControllerAt index: Int) {
+        print("Will scroll at \(index)")
+    }
+
     func orderedPageViewController(_ orderedPageViewController: OrderedPageViewController, viewControllerAt index: Int) -> UIViewController {
         return ViewController.newInstance(index: index)
     }
