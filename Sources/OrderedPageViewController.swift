@@ -49,7 +49,9 @@ open class OrderedPageViewController: UIPageViewController {
         return super.gestureRecognizers
     }
 
-    public override init(transitionStyle style: UIPageViewControllerTransitionStyle, navigationOrientation: UIPageViewControllerNavigationOrientation, options: [String : Any]? = nil) {
+    public override init(transitionStyle style: UIPageViewController.TransitionStyle,
+                         navigationOrientation: UIPageViewController.NavigationOrientation,
+                         options: [UIPageViewController.OptionsKey: Any]? = nil) {
         self.isInfinite = true
         self.pageIndex = -1
         self.numberOfPages = -1
@@ -74,7 +76,7 @@ open class OrderedPageViewController: UIPageViewController {
         guard let viewController = self.viewController(at: index) else {
             return
         }
-        var direction: UIPageViewControllerNavigationDirection = .forward
+        var direction: UIPageViewController.NavigationDirection = .forward
         if self.pageIndex != -1 && self.pageIndex > index {
             direction = .reverse
         }
@@ -121,11 +123,11 @@ open class OrderedPageViewController: UIPageViewController {
     }
 
     #if os(iOS)
-    open override var childViewControllerForStatusBarStyle: UIViewController? {
+    open override var childForStatusBarStyle: UIViewController? {
         return self.visibleViewController
     }
 
-    open override var childViewControllerForStatusBarHidden: UIViewController? {
+    open override var childForStatusBarHidden: UIViewController? {
         return self.visibleViewController
     }
     #endif
@@ -173,17 +175,15 @@ extension OrderedPageViewController: UIPageViewControllerDataSource {
 extension OrderedPageViewController: UIPageViewControllerDelegate {
 
     public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
-        pageViewController.view.isUserInteractionEnabled = false
         if pendingViewControllers.count > 0 {
             let index = self.index(of: pendingViewControllers[0])
-            if index >= 0 {
+            if index >= 0 && index != self.pageIndex {
                 self.orderedDelegate?.orderedPageViewController(self, willScrollToViewControllerAt: index)
             }
         }
     }
 
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        pageViewController.view.isUserInteractionEnabled = true
         guard let viewControllers = pageViewController.viewControllers else {
             return
         }

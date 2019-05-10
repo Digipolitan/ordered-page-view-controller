@@ -1,7 +1,7 @@
 OrderedPageViewController
 =================================
 
-[![Build Status](https://travis-ci.org/Digipolitan/ordered-page-view-controller-swift.svg?branch=master)](https://travis-ci.org/Digipolitan/ordered-page-view-controller-swift)
+[![Build Status](https://travis-ci.org/Digipolitan/ordered-page-view-controller.svg?branch=master)](https://travis-ci.org/Digipolitan/ordered-page-view-controller)
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/OrderedPageViewController.svg)](https://img.shields.io/cocoapods/v/OrderedPageViewController.svg)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 [![Platform](https://img.shields.io/cocoapods/p/OrderedPageViewController.svg?style=flat)](http://cocoadocs.org/docsets/OrderedPageViewController)
