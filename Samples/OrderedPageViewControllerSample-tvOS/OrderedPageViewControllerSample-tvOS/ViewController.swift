@@ -23,6 +23,7 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        self.title = "VC \(self.index!)"
         self.titleLabel.text = "ViewController index \(self.index!)"
     }
 
@@ -32,5 +33,9 @@ class ViewController: UIViewController {
 
     @IBAction public func touchItem8() {
         self.orderedPageViewController?.scroll(toViewControllerAt: 8, animated: true)
+    }
+
+    override var preferredUserInterfaceStyle: UIUserInterfaceStyle {
+        return self.index % 2 == 0 ? .dark : .light
     }
 }

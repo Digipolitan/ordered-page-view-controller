@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
 s.name = "OrderedPageViewController"
-s.version = "1.0.1"
+s.version = "1.1.0"
 s.summary = "OrderedPageViewController is a UIPageViewContoller using delegate & dataSource to provide UIViewController with indexes"
 s.homepage = "https://github.com/Digipolitan/ordered-page-view-controller"
 s.authors = "Digipolitan"

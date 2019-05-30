@@ -19,8 +19,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let orderedPageViewController = OrderedPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
         orderedPageViewController.orderedDelegate = self
         orderedPageViewController.orderedDataSource = self
-        orderedPageViewController.isInfinite = true
-        let navigation = UINavigationController(rootViewController: orderedPageViewController)
+        let navigation = NavigationController(rootViewController: orderedPageViewController)
         navigation.navigationBar.isTranslucent = false
         window.rootViewController = navigation
         self.window = window

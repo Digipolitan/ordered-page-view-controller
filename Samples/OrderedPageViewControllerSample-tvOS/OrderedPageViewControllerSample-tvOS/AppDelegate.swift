@@ -20,7 +20,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         orderedPageViewController.orderedDelegate = self
         orderedPageViewController.orderedDataSource = self
         orderedPageViewController.isInfinite = true
-        let navigation = UINavigationController(rootViewController: orderedPageViewController)
+        let navigation = NavigationController(rootViewController: orderedPageViewController)
         navigation.navigationBar.isTranslucent = false
         window.rootViewController = navigation
         self.window = window

@@ -1,6 +1,7 @@
 OrderedPageViewController
 =================================
 
+[![Swift Version](https://img.shields.io/badge/swift-5.0-orange.svg?style=flat)](https://developer.apple.com/swift/)
 [![Build Status](https://travis-ci.org/Digipolitan/ordered-page-view-controller.svg?branch=master)](https://travis-ci.org/Digipolitan/ordered-page-view-controller)
 [![CocoaPods Compatible](https://img.shields.io/cocoapods/v/OrderedPageViewController.svg)](https://img.shields.io/cocoapods/v/OrderedPageViewController.svg)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
@@ -17,7 +18,7 @@ To install OrderedPageViewController with CocoaPods, add the following lines to 
 
 ```ruby
 source 'https://github.com/CocoaPods/Specs.git'
-platform :ios, '8.0' # or platform :osx, '10.10' if your target is OS X.
+platform :ios, '9.0'
 use_frameworks!
 
 pod 'OrderedPageViewController'
@@ -31,7 +32,6 @@ First you must create a OrderedPageViewController and register delegate and date
 let orderedPageViewController = OrderedPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
 orderedPageViewController.orderedDelegate = self
 orderedPageViewController.orderedDataSource = self
-orderedPageViewController.isInfinite = true
 let navigation = UINavigationController(rootViewController: orderedPageViewController)
 navigation.navigationBar.isTranslucent = false
 window.rootViewController = navigation
