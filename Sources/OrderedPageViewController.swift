@@ -14,6 +14,7 @@ open class OrderedPageViewController: UIPageViewController {
 
     open weak var orderedDataSource: OrderedPageViewControllerDataSource?
     open weak var orderedDelegate: OrderedPageViewControllerDelegate?
+    fileprivate var navigationItemObservation: [NSKeyValueObservation]?
 
     open var visibleViewController: UIViewController? {
         if self.pageIndex != NSNotFound {
@@ -39,17 +40,9 @@ open class OrderedPageViewController: UIPageViewController {
 
     fileprivate var cacheViewControllers: [Int: UIViewController]?
 
-    open override var gestureRecognizers: [UIGestureRecognizer] {
-        if self.transitionStyle == .scroll {
-            if let scrollView = self.firstScrollView(in: self.view),
-                let gestureRecognizers = scrollView.gestureRecognizers {
-                return gestureRecognizers
-            }
-        }
-        return super.gestureRecognizers
-    }
-
-    public override init(transitionStyle style: UIPageViewControllerTransitionStyle, navigationOrientation: UIPageViewControllerNavigationOrientation, options: [String : Any]? = nil) {
+    public override init(transitionStyle style: UIPageViewController.TransitionStyle,
+                         navigationOrientation: UIPageViewController.NavigationOrientation,
+                         options: [UIPageViewController.OptionsKey: Any]? = nil) {
         self.isInfinite = true
         self.pageIndex = -1
         self.numberOfPages = -1
@@ -63,6 +56,10 @@ open class OrderedPageViewController: UIPageViewController {
         super.init(coder: coder)
     }
 
+    deinit {
+        self.navigationItemObservation = nil
+    }
+
     open override func viewDidLoad() {
         super.viewDidLoad()
         super.delegate = self
@@ -71,10 +68,14 @@ open class OrderedPageViewController: UIPageViewController {
     }
 
     open func scroll(toViewControllerAt index: Int, animated: Bool) {
+        guard self.isViewLoaded else {
+            self.pageIndex = index
+            return
+        }
         guard let viewController = self.viewController(at: index) else {
             return
         }
-        var direction: UIPageViewControllerNavigationDirection = .forward
+        var direction: UIPageViewController.NavigationDirection = .forward
         if self.pageIndex != -1 && self.pageIndex > index {
             direction = .reverse
         }
@@ -83,13 +84,43 @@ open class OrderedPageViewController: UIPageViewController {
                 return
             }
             target.pageIndex = index
-            #if os(iOS)
-            target.setNeedsStatusBarAppearanceUpdate()
-            #elseif os(tvOS)
-            target.setNeedsFocusUpdate()
-            #endif
+            target.setNeedsUIUpdate()
             target.orderedDelegate?.orderedPageViewController(target, didScrollToViewControllerAt: target.pageIndex)
         }
+    }
+
+    fileprivate func observeNavigationItem<T>(_ childNavigationItem: UINavigationItem, using keyPath: ReferenceWritableKeyPath<UINavigationItem, T?>) -> NSKeyValueObservation {
+        self.navigationItem[keyPath: keyPath] = childNavigationItem[keyPath: keyPath]
+        return childNavigationItem.observe(keyPath, options: [.new], changeHandler: { [weak self] (_, change) in
+            guard let target = self, let res = change.newValue else {
+                return
+            }
+            target.navigationItem[keyPath: keyPath] = res
+        })
+    }
+
+    fileprivate func setNeedsUIUpdate() {
+        let navigationItem = self.visibleViewController?.navigationItem ?? self.navigationItem
+        self.navigationItemObservation = [
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.title),
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.titleView),
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.rightBarButtonItems),
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.leftBarButtonItems),
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.rightBarButtonItem),
+            self.observeNavigationItem(navigationItem, using: \UINavigationItem.leftBarButtonItem)
+        ]
+        #if os(iOS)
+        self.setNeedsStatusBarAppearanceUpdate()
+        if #available(iOS 11.0, *) {
+            self.setNeedsUpdateOfHomeIndicatorAutoHidden()
+            self.setNeedsUpdateOfScreenEdgesDeferringSystemGestures()
+        }
+        #elseif os(tvOS)
+        self.setNeedsFocusUpdate()
+        if #available(tvOS 11.0, *) {
+            self.setNeedsUserInterfaceAppearanceUpdate()
+        }
+        #endif
     }
 
     open func viewController(at index: Int) -> UIViewController? {
@@ -121,27 +152,29 @@ open class OrderedPageViewController: UIPageViewController {
     }
 
     #if os(iOS)
-    open override var childViewControllerForStatusBarStyle: UIViewController? {
+    open override var childForStatusBarStyle: UIViewController? {
         return self.visibleViewController
     }
 
-    open override var childViewControllerForStatusBarHidden: UIViewController? {
+    open override var childForStatusBarHidden: UIViewController? {
+        return self.visibleViewController
+    }
+
+    @available(iOS 11.0, *)
+    open override var childForHomeIndicatorAutoHidden: UIViewController? {
+        return self.visibleViewController
+    }
+
+    @available(iOS 11.0, *)
+    open override var childForScreenEdgesDeferringSystemGestures: UIViewController? {
+        return self.visibleViewController
+    }
+    #elseif os(tvOS)
+    @available(tvOS 11.0, *)
+    open override var childViewControllerForUserInterfaceStyle: UIViewController? {
         return self.visibleViewController
     }
     #endif
-
-    fileprivate func firstScrollView(in view: UIView) -> UIScrollView? {
-        if let scrollView = view as? UIScrollView {
-            return scrollView
-        } else {
-            for subview in view.subviews {
-                if let scrollView = self.firstScrollView(in: subview) {
-                    return scrollView
-                }
-            }
-        }
-        return nil
-    }
 }
 
 extension OrderedPageViewController: UIPageViewControllerDataSource {
@@ -173,17 +206,17 @@ extension OrderedPageViewController: UIPageViewControllerDataSource {
 extension OrderedPageViewController: UIPageViewControllerDelegate {
 
     public func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
-        pageViewController.view.isUserInteractionEnabled = false
+        self.view.isUserInteractionEnabled = false
         if pendingViewControllers.count > 0 {
             let index = self.index(of: pendingViewControllers[0])
-            if index >= 0 {
+            if index >= 0 && index != self.pageIndex {
                 self.orderedDelegate?.orderedPageViewController(self, willScrollToViewControllerAt: index)
             }
         }
     }
 
     public func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
-        pageViewController.view.isUserInteractionEnabled = true
+        self.view.isUserInteractionEnabled = true
         guard let viewControllers = pageViewController.viewControllers else {
             return
         }
@@ -192,11 +225,7 @@ extension OrderedPageViewController: UIPageViewControllerDelegate {
         } else {
             self.pageIndex = -1
         }
-        #if os(iOS)
-        self.setNeedsStatusBarAppearanceUpdate()
-        #elseif os(tvOS)
-        self.setNeedsFocusUpdate()
-        #endif
+        self.setNeedsUIUpdate()
         self.orderedDelegate?.orderedPageViewController(self, didScrollToViewControllerAt: self.pageIndex)
     }
 

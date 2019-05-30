@@ -14,13 +14,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+    internal func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let orderedPageViewController = OrderedPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal)
         orderedPageViewController.orderedDelegate = self
         orderedPageViewController.orderedDataSource = self
-        orderedPageViewController.isInfinite = true
-        let navigation = UINavigationController(rootViewController: orderedPageViewController)
+        let navigation = NavigationController(rootViewController: orderedPageViewController)
         navigation.navigationBar.isTranslucent = false
         window.rootViewController = navigation
         self.window = window
